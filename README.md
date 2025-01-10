@@ -136,7 +136,7 @@ cv2.destroyAllWindows()
 
 ```
 Tip-- chech the right python versions and tensorflow versions to avoid the syntax errors.
-
+--download the the complete code by Downloading the main_.py file and paste it in pycharm projects.
 
 Step 9: Execute the Program
 
