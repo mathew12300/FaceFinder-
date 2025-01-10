@@ -189,14 +189,6 @@ Here's what the parameters mean:
 - `x, y` is the top-left corner of the rectangle.
 - `w, h` are the width and height of the rectangle.
 
-### 6. Draw Rectangles Around Faces
-Once faces are detected, we can highlight them by drawing rectangles around them.
-
-```python
-# Draw rectangles around the detected faces
-for (x, y, w, h) in faces:
-    cv2.rectangle(image, (x, y), (x + w, y + h), (255, 0, 0), 2)
-```
 
 This loop iterates over each detected face and uses `cv2.rectangle()` to draw a blue rectangle (`(255, 0, 0)` represents blue in BGR format) around the detected face. The `2` represents the thickness of the rectangle.
 
@@ -221,34 +213,59 @@ cv2.destroyAllWindows()
 ### Complete Code Example:
 
 ```python
-import cv2
+from keras.models import load_model  # TensorFlow is required for Keras to work
+import cv2  # Install opencv-python
 import numpy as np
 
-# Load the pre-trained Haar Cascade classifier for face detection
-face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+# Disable scientific notation for clarity
+np.set_printoptions(suppress=True)
 
-# Load the image
-image = cv2.imread('image.jpg')
+# Load the model
+model = load_model("keras_Model.h5", compile=False)
 
-# Convert the image to grayscale
-gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+# Load the labels
+class_names = open("labels.txt", "r").readlines()
 
-# Detect faces in the image
-faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
+# CAMERA can be 0 or 1 based on default camera of your computer
+camera = cv2.VideoCapture(0)
 
-# Draw rectangles around the faces
-for (x, y, w, h) in faces:
-    cv2.rectangle(image, (x, y), (x + w, y + h), (255, 0, 0), 2)
+while True:
+    # Grab the webcamera's image.
+    ret, image = camera.read()
 
-# Display the output
-cv2.imshow('Face Detection', image)
+    # Resize the raw image into (224-height,224-width) pixels
+    image = cv2.resize(image, (224, 224), interpolation=cv2.INTER_AREA)
 
-# Wait until a key is pressed
-cv2.waitKey(0)
+    # Show the image in a window
+    cv2.imshow("Webcam Image", image)
 
-# Close all windows
+    # Make the image a numpy array and reshape it to the models input shape.
+    image = np.asarray(image, dtype=np.float32).reshape(1, 224, 224, 3)
+
+    # Normalize the image array
+    image = (image / 127.5) - 1
+
+    # Predicts the model
+    prediction = model.predict(image)
+    index = np.argmax(prediction)
+    class_name = class_names[index]
+    confidence_score = prediction[0][index]
+
+    # Print prediction and confidence score
+    print("Class:", class_name[2:], end="")
+    print("Confidence Score:", str(np.round(confidence_score * 100))[:-2], "%")
+
+    # Listen to the keyboard for presses.
+    keyboard_input = cv2.waitKey(1)
+
+    # 27 is the ASCII for the esc key on your keyboard.
+    if keyboard_input == 27:
+        break
+
+camera.release()
 cv2.destroyAllWindows()
-```
+
+
 
 -Installlation of facefinder+ 
 -Step1: Open chrome and search for Google Teachable Machines website(https://teachablemachine.withgoogle.com/) and click on Get started. 
