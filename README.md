@@ -31,33 +31,41 @@ Open the terminal within PyCharm (usually located at the bottom of the screen).
 
 Run the following command to install the OpenCV library:
 
+--pip install opencv-python
 
 
-pip install opencv-python
 Step 4: Create a Python File
 In the project folder, right-click and select New > Python File.
-Name the file face_detection.py.
+Name the file main_py.
 Step 5: Import Required Libraries
-Open the face_detection.py file.
-
-Import the OpenCV library:
+Open the main_.py file.
 
 
-import cv2
 Step 6: Load a Pre-Trained Face Detection Model
-OpenCV provides a pre-trained Haar Cascade classifier for face detection.
+use google teacheable Machines to create pre trained  model using the steps
+-Step 6.1: Open chrome and search for Google Teachable Machines website(https://teachablemachine.withgoogle.com/) and click on Get started. 
+![image](https://github.com/user-attachments/assets/2f789832-b844-4643-a1b8-e20919208c40)
 
-Load it using the following code:
+-Step 6.2: And under the New Project section, select the Image Model folder.
+![image](https://github.com/user-attachments/assets/a935443e-70b4-4426-b2b7-5372348bc88d)
 
+-Step6.3: Select the Standard Image Model option.
+![image](https://github.com/user-attachments/assets/cf425c7c-d88b-4e0b-8825-cd45890af7e3)
 
-face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
-Step 7: Access Webcam Feed
+-Step6.4: Determine the Required classes and upload the photos using webcam and google drive, And Train the Model. 
+-You could see the comparision percentage for the given classes.
+![image](https://github.com/user-attachments/assets/109f6d41-d457-45f4-bc56-a5a22fb85fb2)
+
+-Step6.5: Click on Export the Model.
+-Step6.6: Under the tensorflow tab, select Download the model option.
+-And a .zip file would be downloaded. 
+![image](https://github.com/user-attachments/assets/96d79673-80dc-4494-9fb9-1164397d1675)
+Step 6.7: Access Webcam Feed
 Initialize the webcam to capture video:
 
-python
-Copy code
+
 cap = cv2.VideoCapture(0)
-Step 8: Detect Faces in Real-Time
+Step 7: Detect Faces in Real-Time
 Use a loop to process each video frame:
 
  # Resize the raw image into (224-height,224-width) pixels
@@ -71,92 +79,97 @@ Use a loop to process each video frame:
 
     # Normalize the image array
     image = (image / 127.5) - 1
-Step 9: Release Resources and Close Windows
+Step 8: Release Resources and Close Windows
 After exiting the loop, release the webcam and close all OpenCV windows:
 
-python
-Copy code
+
 cap.release()
 cv2.destroyAllWindows()
+
 Full Code:
-python
-Copy code
-import cv2
 
-# Load the pre-trained Haar Cascade classifier
-face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+```
+from keras.models import load_model  # TensorFlow is required for Keras to work
+import cv2  # Install opencv-python
+import numpy as np
 
-# Initialize webcam
-cap = cv2.VideoCapture(0)
+# Disable scientific notation for clarity
+np.set_printoptions(suppress=True)
+
+# Load the model
+model = load_model("keras_Model.h5", compile=False)
+
+# Load the labels
+class_names = open("labels.txt", "r").readlines()
+
+# CAMERA can be 0 or 1 based on default camera of your computer
+camera = cv2.VideoCapture(0)
 
 while True:
-    # Capture video frames
-    ret, frame = cap.read()
+    # Grab the webcamera's image.
+    ret, image = camera.read()
 
-    # Convert to grayscale
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    # Resize the raw image into (224-height,224-width) pixels
+    image = cv2.resize(image, (224, 224), interpolation=cv2.INTER_AREA)
 
-    # Detect faces
-    faces = face_cascade.detectMultiScale(gray, 1.1, 4)
+    # Show the image in a window
+    cv2.imshow("Webcam Image", image)
 
-    # Draw rectangles around detected faces
-    for (x, y, w, h) in faces:
-        cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+    # Make the image a numpy array and reshape it to the models input shape.
+    image = np.asarray(image, dtype=np.float32).reshape(1, 224, 224, 3)
 
-    # Display the frame
-    cv2.imshow('Face Detection', frame)
+    # Normalize the image array
+    image = (image / 127.5) - 1
 
-    # Break the loop when 'q' is pressed
-    if cv2.waitKey(1) & 0xFF == ord('q'):
+    # Predicts the model
+    prediction = model.predict(image)
+    index = np.argmax(prediction)
+    class_name = class_names[index]
+    confidence_score = prediction[0][index]
+
+    # Print prediction and confidence score
+    print("Class:", class_name[2:], end="")
+    print("Confidence Score:", str(np.round(confidence_score * 100))[:-2], "%")
+
+    # Listen to the keyboard for presses.
+    keyboard_input = cv2.waitKey(1)
+
+    # 27 is the ASCII for the esc key on your keyboard.
+    if keyboard_input == 27:
         break
 
-# Release the webcam and close OpenCV windows
-cap.release()
+camera.release()
 cv2.destroyAllWindows()
+```
+
 Step 10: Execute the Program
+
 Run the program by clicking the Run button in PyCharm.
 Your webcam will open, and the program will start detecting faces in real-time.
 Press the 'q' key to close the video feed and stop the program.
 
 
-### 1. Install OpenCV
+### 1. Install the required libraries using the requirements.txt file()
 First, you need to install the OpenCV library. You can install it using pip:
 
 ```bash
-pip install opencv-python
+pip install -r requirements.txt 
 ```
 
 ### 2. Import Libraries
 We need to import the required libraries. In this case, it's OpenCV for computer vision tasks and numpy for handling arrays.
 
 ```python
+from keras.models import load_model
 import cv2
 import numpy as np
 ```
 
-### 3. Load the Pre-trained Haar Cascade Classifier
-OpenCV provides pre-trained classifiers for detecting faces, eyes, etc. These classifiers are based on Haar features and can be loaded from XML files.
+### 3. Load the Pre-trained model .zip file in the projects path 
+ Open the .zip file and extract the "keras_model.h5
 
-```python
-# Load the pre-trained Haar Cascade classifier for face detection
-face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
-```
 
-This line loads a specific classifier, `haarcascade_frontalface_default.xml`, which is trained to detect faces in images. OpenCV has several other pre-trained classifiers for detecting eyes, smile, etc.
 
-### 4. Load the Image or Video
-Next, we need to load the image or video on which we want to perform face detection.
-
-```python
-# Load the image from file
-image = cv2.imread('image.jpg')
-
-# Convert the image to grayscale (required for Haar Cascade detection)
-gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-```
-
-- `cv2.imread()` loads the image from the specified file.
-- `cv2.cvtColor()` converts the image from color to grayscale. Grayscale images are easier to process and work better for face detection.
 
 ### 5. Detect Faces
 Now, we use the `detectMultiScale()` method to detect faces in the grayscale image.
