@@ -60,30 +60,17 @@ cap = cv2.VideoCapture(0)
 Step 8: Detect Faces in Real-Time
 Use a loop to process each video frame:
 
-Convert the frame to grayscale for better face detection.
-Apply the Haar Cascade model to detect faces.
-python
-Copy code
-while True:
-    # Capture video frames
-    ret, frame = cap.read()
+ # Resize the raw image into (224-height,224-width) pixels
+    image = cv2.resize(image, (224, 224), interpolation=cv2.INTER_AREA)
 
-    # Convert to grayscale
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    # Show the image in a window
+    cv2.imshow("Webcam Image", image)
 
-    # Detect faces
-    faces = face_cascade.detectMultiScale(gray, 1.1, 4)
+    # Make the image a numpy array and reshape it to the models input shape.
+    image = np.asarray(image, dtype=np.float32).reshape(1, 224, 224, 3)
 
-    # Draw rectangles around detected faces
-    for (x, y, w, h) in faces:
-        cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
-
-    # Display the frame
-    cv2.imshow('Face Detection', frame)
-
-    # Break the loop when 'q' is pressed
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+    # Normalize the image array
+    image = (image / 127.5) - 1
 Step 9: Release Resources and Close Windows
 After exiting the loop, release the webcam and close all OpenCV windows:
 
