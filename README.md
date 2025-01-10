@@ -14,19 +14,18 @@ This repository contains a Python-based face detection project leveraging a pre-
 - A pre-trained face model from Google Teachable Machine
 
 1. Import Required Libraries
-python
-Copy code
+
 from keras.models import load_model  # TensorFlow is required for Keras to work
 import cv2  # OpenCV for webcam access and image processing
 import numpy as np  # NumPy for numerical operations
+
 Explanation:
 
 load_model: Used to load the pre-trained face recognition model.
 cv2: OpenCV allows accessing the webcam and processing image frames.
 numpy: Handles numerical operations like reshaping and normalizing image arrays.
 2. Load Model and Labels
-python
-Copy code
+
 # Load the pre-trained model
 model = load_model("keras_Model.h5", compile=False)
 
@@ -37,16 +36,14 @@ Explanation:
 Model Loading: The model file (keras_Model.h5) contains the trained weights and architecture.
 Labels File: labels.txt maps the class indices to their respective names.
 3. Initialize Webcam
-python
-Copy code
+
 # Set up the webcam (use 0 for default camera)
 camera = cv2.VideoCapture(0)
 Explanation:
 
 cv2.VideoCapture(0): Initializes the webcam. Replace 0 with 1 or another index if you have multiple cameras.
 4. Process Webcam Input
-python
-Copy code
+
 while True:
     # Capture frame from the webcam
     ret, image = camera.read()
@@ -62,8 +59,7 @@ Frame Capture: Captures a single frame from the webcam.
 Resize: Resizes the image to the required input dimensions (224x224).
 Display: Shows the captured image in a window for real-time feedback.
 5. Preprocess the Frame
-python
-Copy code
+
     # Convert the frame to a NumPy array and reshape
     image = np.asarray(image, dtype=np.float32).reshape(1, 224, 224, 3)
 
@@ -75,8 +71,7 @@ NumPy Conversion: Converts the image to a NumPy array for compatibility with the
 Reshape: Matches the model’s expected input dimensions: (1, 224, 224, 3).
 Normalization: Scales pixel values from [0, 255] to [-1, 1] for improved model performance.
 6. Make Predictions
-python
-Copy code
+
     # Predict the class of the frame
     prediction = model.predict(image)
     index = np.argmax(prediction)
@@ -100,8 +95,7 @@ Explanation:
 
 Listens for the ESC key (ASCII 27). If pressed, the program exits the loop.
 8. Cleanup
-python
-Copy code
+
 # Release the webcam and close all OpenCV windows
 camera.release()
 cv2.destroyAllWindows()
