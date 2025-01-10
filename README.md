@@ -80,10 +80,13 @@ pip install -r requirements.txt
 from keras.models import load_model  # TensorFlow is required for Keras to work
 import cv2  # Install opencv-python
 import numpy as np
-
+```
+```
 # Disable scientific notation for clarity
 np.set_printoptions(suppress=True)
+```
 
+```
 # Load the model
 model = load_model("keras_Model.h5", compile=False)
 
@@ -92,7 +95,9 @@ class_names = open("labels.txt", "r").readlines()
 
 # CAMERA can be 0 or 1 based on default camera of your computer
 camera = cv2.VideoCapture(0)
+```
 
+```
 while True:
     # Grab the webcamera's image.
     ret, image = camera.read()
